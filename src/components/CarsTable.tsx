@@ -4,88 +4,101 @@ import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 
-import { Box, Button } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
-
-interface ICar {
-  brand: string;
-  model: string;
-  year: number;
-  kms: number;
-  color: string;
-  price: number;
-  damaged_parts: string[];
-  modifications: string[];
-}
+import axios from "axios";
+import { ICar } from "../Types";
+import { useState } from "react";
 
 interface Props {
   props: ICar[];
 }
 
 export const CarsTable = (props: Props) => {
+  const [cars, setCars] = useState<ICar[]>(props.props);
+
   const headCellStyle = { color: "#000", fontSize: "16px", fontWeight: "bold" };
   const rowCellStyle = { color: "#fff" };
 
-  return (
-    <Table
-      aria-label="customized table"
-      sx={{
-        minWidth: 650,
-        background: "#000",
-        border: "1px solid rgba(255, 255, 255, 0.5)",
-      }}
-    >
-      <TableHead sx={{ background: "#fff" }}>
-        <TableRow>
-          <TableCell sx={headCellStyle}>Marca</TableCell>
-          <TableCell sx={headCellStyle}>Modelo</TableCell>
-          <TableCell sx={headCellStyle}>Ano</TableCell>
-          <TableCell sx={headCellStyle}>Kms</TableCell>
-          <TableCell sx={headCellStyle}>Cor</TableCell>
-          <TableCell sx={headCellStyle}>Preço</TableCell>
-          <TableCell sx={headCellStyle}>Modificações</TableCell>
-          <TableCell sx={headCellStyle}>Partes danificadas</TableCell>
-          <TableCell sx={headCellStyle}>Editar ou excluir</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {props.props.map((car, i) => (
-          <TableRow
-            key={i}
-            sx={{
-              "&:last-child td, &:last-child th": { border: 0 },
-              "&:hover": { background: "#111" },
-            }}
-          >
-            <TableCell sx={rowCellStyle}>{car.brand}</TableCell>
-            <TableCell sx={rowCellStyle}>{car.model}</TableCell>
-            <TableCell sx={rowCellStyle}>{car.year}</TableCell>
-            <TableCell sx={rowCellStyle}>{car.kms}</TableCell>
-            <TableCell sx={rowCellStyle}>{car.color}</TableCell>
-            <TableCell sx={rowCellStyle}>
-              R$ {car.price.toLocaleString("pt-BR")},00
-            </TableCell>
-            <TableCell sx={rowCellStyle}>
-              {car.modifications.join(", ")}
-            </TableCell>
-            <TableCell sx={rowCellStyle}>
-              {car.damaged_parts.join(", ")}
-            </TableCell>
-            <TableCell>
-              <Box sx={{ display: "flex", gap: "5px", maxHeight: "50px" }}>
-                <Button variant="outlined" color="info" sx={{ padding: 0 }}>
-                  <EditOutlinedIcon />
-                </Button>
-                <Button variant="outlined" color="error">
-                  <DeleteOutlineOutlinedIcon />
-                </Button>
-              </Box>
-            </TableCell>
+  const deleteCar = (id: string) => {
+    axios
+      .delete(`http://localhost:3000/cars/${id}`)
+      .catch((err) => console.log(err));
+    setCars((current) => current.filter((car) => car._id !== id));
+  };
+
+  if (cars.length > 0) {
+    return (
+      <Table
+        aria-label="customized table"
+        sx={{
+          minWidth: 650,
+          background: "#000",
+          border: "1px solid rgba(255, 255, 255, 0.5)",
+        }}
+      >
+        <TableHead sx={{ background: "#fff" }}>
+          <TableRow>
+            <TableCell sx={headCellStyle}>Marca</TableCell>
+            <TableCell sx={headCellStyle}>Modelo</TableCell>
+            <TableCell sx={headCellStyle}>Ano</TableCell>
+            <TableCell sx={headCellStyle}>Kms</TableCell>
+            <TableCell sx={headCellStyle}>Cor</TableCell>
+            <TableCell sx={headCellStyle}>Preço</TableCell>
+            <TableCell sx={headCellStyle}>Modificações</TableCell>
+            <TableCell sx={headCellStyle}>Partes danificadas</TableCell>
+            <TableCell sx={headCellStyle}>Editar ou excluir</TableCell>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
+        </TableHead>
+        <TableBody>
+          {cars.map((car, i) => (
+            <TableRow
+              key={i}
+              sx={{
+                "&:last-child td, &:last-child th": { border: 0 },
+                "&:hover": { background: "#111" },
+              }}
+            >
+              <TableCell sx={rowCellStyle}>{car.brand}</TableCell>
+              <TableCell sx={rowCellStyle}>{car.model}</TableCell>
+              <TableCell sx={rowCellStyle}>{car.year}</TableCell>
+              <TableCell sx={rowCellStyle}>
+                {car.kms.toLocaleString()}
+              </TableCell>
+              <TableCell sx={rowCellStyle}>{car.color}</TableCell>
+              <TableCell sx={rowCellStyle}>
+                R$ {car.price.toLocaleString()},00
+              </TableCell>
+              <TableCell sx={rowCellStyle}>
+                {car.modifications.join(", ")}
+              </TableCell>
+              <TableCell sx={rowCellStyle}>
+                {car.damaged_parts.join(", ")}
+              </TableCell>
+              <TableCell>
+                <Box sx={{ display: "flex", gap: "5px", maxHeight: "50px" }}>
+                  <Button variant="outlined" color="info" sx={{ padding: 0 }}>
+                    <EditOutlinedIcon />
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => deleteCar(car._id)}
+                  >
+                    <DeleteOutlineOutlinedIcon />
+                  </Button>
+                </Box>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    );
+  } else {
+    return (
+      <Typography sx={{ paddingTop: "8px" }}>Não possui carros</Typography>
+    );
+  }
 };

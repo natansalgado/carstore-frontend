@@ -81,7 +81,7 @@ export const EditCarModal = ({
       setColor(carToEdit.color);
       setPrice(Number(carToEdit.price));
       setModifications(carToEdit.modifications.join(", "));
-      setDamagedParts(carToEdit.damaged_parts.join(","));
+      setDamagedParts(carToEdit.damaged_parts.join(", "));
     }
   }, [carToEdit]);
 
